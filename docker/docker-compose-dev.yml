@@ -1,0 +1,127 @@
+version: '3'
+
+services:
+  node-server-sample:
+    build:
+      context: ./app
+      dockerfile: Dockerfile-app
+      args:
+      - http_proxy=http://${proxy_user}:${proxy_pwd}@${proxy_uri}
+      - https_proxy=https://${proxy_user}:${proxy_pwd}@${proxy_uri}
+    image: node-server-sample:${image_tag}
+    container_name: node-server-sample
+    tty: true
+    cap_add:
+    - SYS_ADMIN
+    security_opt: 
+    - seccomp:unconfined
+    ports:
+    - 3003:3003
+    - 127.0.0.1:5555:22
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24220"
+        tag: "docker.{{.Name}}"    
+    depends_on:
+      - fluentd
+      - mongodb
+    volumes:
+    - ./../../node-server-sample:/home/development/project/node-server-sample
+    working_dir: /home/development/project/node-server-sample
+    networks:
+      - nodeserversample
+
+  fluentd:
+    build:
+      context: ./fluentd
+      dockerfile: Dockerfile-fl
+      args:
+      - http_proxy=http://${proxy_user}:${proxy_pwd}@${proxy_uri}
+      - https_proxy=https://${proxy_user}:${proxy_pwd}@${proxy_uri}
+    volumes:
+      - ./fluentd/config:/fluentd/etc
+    ports:
+      - "24220:24220"
+      - "24220:24220/udp"
+    depends_on:
+      - elasticsearch
+      - kibana
+    networks:
+      - nodeserversample
+
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile-el
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./../../../elasticsearch_dump:/home/snapshot
+    networks:
+        - nodeserversample
+
+  kibana:
+    build:
+      context: ./kibana
+      dockerfile: Dockerfile-kb
+    volumes:
+      - ./kibana/config:/opt/kibana/config
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - nodeserversample
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      -  'MONGODB_USER=user' 
+      -  'MONGODB_PASS=password!'
+    volumes:
+      - 'mongodb-data:/data/db'
+    ports:
+      - '27017:27017'
+    command: mongod  
+    networks:
+      - nodeserversample
+  mongo-express:
+    container_name: mongo-express
+    links:
+      - 'mongodb:mongo'
+    ports:
+      - '8081:8081'
+    environment:
+      - 'ME_CONFIG_OPTIONS_EDITORTHEME=ambiance'
+      - 'ME_CONFIG_BASICAUTH_USERNAME=user'
+      - 'ME_CONFIG_BASICAUTH_PASSWORD=password!'
+    image: mongo-express
+    networks:
+      - nodeserversample
+  log-stash:
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile-ls
+    tty: true
+    stdin_open: true
+    container_name: log-stash
+    image: log-stash
+    networks:
+      - nodeserversample
+    volumes:
+    - ./../../node-server-sample/src/js/tools/logs:/home/development/project/node-server-sample/systemlogs
+    - ./logstash/conf:/usr/share/logstash/pipeline
+volumes:
+  mongodb-data: {}
+
+networks:
+  nodeserversample:

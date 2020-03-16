@@ -1,0 +1,9 @@
+docker/.env
+
+node_modules
+dist/**/*.js*
+logs/**/**
+src/js/tools/sample-server.txt
+src/js/tools/logs/**
+coverage/**/*
+reports/report.xml

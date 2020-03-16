@@ -1,0 +1,60 @@
+{
+   "ldaphostname": "sample.co.jp",
+   "serviceurl": "http://127.0.0.1:8080/api",
+   "log4js": {
+      "appenders": {
+          "info": {
+              "type":     "dateFile",
+              "filename": "/home/development/project/node-server-sample/logs/info.log"
+          },
+          "error": {
+              "type":     "dateFile",
+              "filename": "/home/development/project/node-server-sample/logs/error.log"
+          },
+          "system": {
+              "type":     "dateFile",
+              "filename": "/home/development/project/node-server-sample/logs/system.log"
+          },
+          "console": {
+              "type": "console"
+          },
+          "stdout": {
+            "type": "stdout"
+          }
+      },
+      "categories": {
+          "default": {
+              "appenders": [
+                  "info"
+                  ,"error"
+                  ,"system"
+                  ,"console"
+                  ,"stdout"
+              ]
+              ,"level": "INFO"
+          },
+          "info": {
+              "appenders": [
+                  "info",
+                  "stdout"
+              ]
+              ,"level": "INFO"
+          },
+          "system": {
+              "appenders": [
+                  "system",
+                  "stdout"
+              ]
+              ,"level": "ALL"
+          },
+          "error": {
+              "appenders": [
+                  "error"
+                  ,"console"
+                  ,"stdout"
+              ]
+              ,"level": "WARN"
+          }
+      }
+  }
+}

@@ -1,0 +1,5 @@
+FROM elasticsearch:7.3.2
+
+WORKDIR /home/snapshot
+
+COPY ./config/elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml

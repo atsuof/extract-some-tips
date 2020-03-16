@@ -1,0 +1,32 @@
+//リポジトリ登録
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot' -H "Content-Type: application/json" -d '{"type": "fs","settings": {"location": "/home/snapshot", "compress": true }}'
+
+//バックアップ作成
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot/snapshot-logstash-2019.10.16?wait_for_completion=true' -H "Content-Type: application/json" -d '{"indices": "logstash-2019.10.16","ignore_unavailable": true,"include_global_state": false}'
+
+//レストア
+curl -XPOST 'http://localhost:9200/_snapshot/snapshot/snapshot-logstash-2019.10.16/_restore' -H "Content-Type: application/json" -d '{
+    "indices": "logstash-2019.10.16",
+    "ignore_unavailable": "true",
+    "include_global_state": false
+}'
+
+//インデックス表示
+curl -XGET localhost:9200/_aliases?pretty
+
+//kibanaバックアップ
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_task_manager?wait_for_completion=true' -H "Content-Type: application/json" -d '{"indices": ".kibana_task_manager","ignore_unavailable": true,"include_global_state": false}'
+
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot/snap-shot-tasks?wait_for_completion=true' -H "Content-Type: application/json" -d '{"indices": ".tasks","ignore_unavailable": true,"include_global_state": false}'
+
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_1?wait_for_completion=true' -H "Content-Type: application/json" -d '{"indices": ".kibana_1","ignore_unavailable": true,"include_global_state": false}'
+
+curl -XPUT 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_2?wait_for_completion=true' -H "Content-Type: application/json" -d '{"indices": ".kibana_2","ignore_unavailable": true,"include_global_state": false}'
+
+//snapshot削除
+curl -XDELETE 'http://localhost:9200/_snapshot/snapshot/snapshot-logstash-2019.10.16'
+
+curl -XDELETE 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_task_manager'
+curl -XDELETE 'http://localhost:9200/_snapshot/snapshot/snap-shot-tasks'
+curl -XDELETE 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_1'
+curl -XDELETE 'http://localhost:9200/_snapshot/snapshot/snap-shot-kibana_2'

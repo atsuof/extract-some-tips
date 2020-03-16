@@ -1,0 +1,9 @@
+FROM fluent/fluentd:v1.3.2-1.0
+
+RUN set -x \
+  && : "~/.bashrcにproxy設定する" \
+  && : echo "export http_proxy=${http_proxy}" \
+  && { echo "export http_proxy=${http_proxy}"; \
+       echo "export https_proxy=${https_proxy}"; \
+  } | tee -a ~/.bashrc \
+  && gem install fluent-plugin-elasticsearch

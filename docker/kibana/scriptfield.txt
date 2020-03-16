@@ -1,0 +1,47 @@
+analysis_fromAddress
+
+def str = doc['log.keyword'];
+if(str.toString().indexOf("from") > 0 && str.toString().indexOf("errLevel") > 0){
+   def fromIndex = str.toString().indexOf("from");
+   def toIndex = str.toString().indexOf("errLevel");
+   return str.toString().substring(fromIndex+5,toIndex-1);
+}
+return "";
+
+analysis_errLevel
+def str = doc['log.keyword'];
+if(str.toString().indexOf("errLevel") > 0){
+	def fromIndex = str.toString().indexOf("errLevel");
+	def toIndex = str.toString().indexOf("errCode");
+	return str.toString().substring(fromIndex+9,toIndex-1);
+}
+return "";
+
+
+analysis_errCode
+
+def str = doc['log.keyword'];
+if(str.toString().indexOf("errCode") > 0){
+	def fromIndex = str.toString().indexOf("errCode");
+	def toIndex = str.toString().indexOf("title");
+	return str.toString().substring(fromIndex+8,toIndex-1);
+}
+return "";
+
+analysis_title
+
+def str = doc['log.keyword'];
+if(str.toString().indexOf("title") > 0){
+	def fromIndex = str.toString().indexOf("title");
+	return str.toString().substring(fromIndex+6);
+}
+return "";
+
+
+analysis_checkfrequency
+
+def str = doc['log.keyword'];
+if(str.toString().indexOf("Check Start") > 0){
+	return "check_exec"
+}
+return "";

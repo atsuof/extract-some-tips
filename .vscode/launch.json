@@ -1,0 +1,49 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Selected File",
+            "preLaunchTask": "Compile TypeScript", 
+            "program": "${file}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Jest Tests",
+            "program": "${workspaceRoot}/node_modules/.bin/jest",
+            "protocol": "inspector",
+            "args": [ "--runInBand" ],
+            "windows": {
+                "program": "${workspaceRoot}/node_modules/jest/bin/jest.js"
+            }
+        },
+        
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "preLaunchTask": "Compile TypeScript", 
+            "program": "${workspaceFolder}/dist/server.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "tools Launch Program",
+            "program": "${workspaceFolder}/dist/tools/mail_address.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        }
+    ]
+}

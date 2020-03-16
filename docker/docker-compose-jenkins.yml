@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  node-server-sample-jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile-jkns
+      args:
+      - http_proxy=http://${proxy_user}:${proxy_pwd}@${proxy_uri}
+      - https_proxy=https://${proxy_user}:${proxy_pwd}@${proxy_uri}
+      - curl_user=${proxy_user}:${proxy_pwd}
+      - curl_proxy=http://${proxy_uri}
+    image: node-server-sample-jenkins:1.0
+    container_name: node-server-sample-jenkins
+    tty: true
+    cap_add:
+    - SYS_ADMIN
+    security_opt: 
+    - seccomp:unconfined
+    ports:
+    - 8080:8080
+    - 127.0.0.1:7777:22
+    volumes:
+    - ./../../node-server-sample-jenkins:/var/jenkins_home
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ./../../deploytest/node-server-sample:/home/jenkins/pre_deploy/node-server-sample

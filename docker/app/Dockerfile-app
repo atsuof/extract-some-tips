@@ -1,0 +1,48 @@
+FROM node:12.14.1
+
+ENV NODE_ENV="development"
+
+WORKDIR /home/development/project/node-server-sample
+
+RUN set -x \
+  && apt-get update \
+  && apt-get install -y vim \
+  && apt-get install -y openssl \
+  && apt-get install -y aptitude \
+  && aptitude install -y ssh \
+  && cp /etc/ssh/sshd_config /etc/ssh/bk_sshd_config \
+  && apt install -y iproute2 \
+  && : "gitダウンロードとproxy設定" \  
+  && apt-get install -y git \
+  && git config --global http.proxy ${http_proxy} \
+  && git config --global https.proxy ${https_proxy} \
+  && : "sshの公開鍵設定用ディレクトリとファイル作成（後でここに作成したkeyの内容をコピペする)" \
+  && mkdir /root/.ssh \
+  && touch /root/.ssh/authorized_keys \
+  && chmod 600 /root/.ssh/authorized_keys \
+  && : "sshd_configの編集" \
+  && sed -i -e "/^#*Port 22/cPort 22" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*AddressFamily any/cAddressFamily any" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*ListenAddress 0.0.0.0/cListenAddress 0.0.0.0" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*LoginGraceTime 2m/cLoginGraceTime 2m" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*PermitRootLogin /cPermitRootLogin yes" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*StrictModes yes/cStrictModes yes" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*PubkeyAuthentication yes/cPubkeyAuthentication yes" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*AuthorizedKeysFile/cAuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2" /etc/ssh/sshd_config \
+  && sed -i -e "/^#*PasswordAuthentication /cPasswordAuthentication yes" /etc/ssh/sshd_config \
+  && : "~/.bashrcにproxy設定する" \
+  && : echo "export http_proxy=${http_proxy}" \
+  && { echo "export http_proxy=${http_proxy}"; \
+       echo "export https_proxy=${https_proxy}"; \
+  } | tee -a ~/.bashrc \
+  && : "wgetコマンドにproxy設定する" \
+  && { echo "http_proxy=${http_proxy}"; \
+       echo "https_proxy=${https_proxy}"; \
+       echo "no_proxy=127.0.0.1,.local"; \
+  } | tee -a /etc/wgetrc \
+  && npm config set proxy ${http_proxy} \
+  && npm config set https-proxy ${http_proxy} \
+  && npm config set registry http://registry.npmjs.org/ \
+  && npm install -g pm2
+
+COPY ./authorized_keys /root/.ssh/authorized_keys
